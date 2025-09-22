@@ -259,6 +259,9 @@
         <div class="nav-tabs">
             <button class="nav-tab active" data-tab="parent-form">Formulaire Parent</button>
             <button class="nav-tab" data-tab="admin-dashboard">Tableau de Bord</button>
+			<button class="nav-tab" data-tab="admin-parents">Gestion Parents</button>
+			<button class="nav-tab" data-tab="admin-educators">Gestion Éducateurs</button>
+			<button class="nav-tab" data-tab="admin-groups">Gestion Groupes</button>
         </div>
 
         <!-- Parent Form Tab -->
@@ -375,6 +378,134 @@
                 <div class="loading">Fonctionnalité en cours de développement...</div>
             </div>
         </div>
+		<!-- Gestion Parents -->
+<div id="admin-parents" class="tab-content">
+    <div class="dashboard-card">
+        <h2>Gestion des Parents</h2>
+        
+        <div style="margin-bottom: 20px;">
+            <button class="btn" id="show-add-parent-btn">Ajouter Parent</button>
+            <button class="btn btn-secondary" id="refresh-parents-btn">Actualiser</button>
+        </div>
+
+        <!-- Formulaire d'ajout -->
+        <div id="add-parent-form" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+            <h3>Ajouter Nouveau Parent</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Nom Complet</label>
+                    <input type="text" id="new-parent-name" placeholder="Nom et prénom">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="new-parent-email" placeholder="email@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Téléphone</label>
+                    <input type="tel" id="new-parent-phone" placeholder="514-555-1234">
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <button class="btn btn-success" id="add-parent-btn">Ajouter</button>
+                <button class="btn btn-secondary" id="cancel-add-parent-btn">Annuler</button>
+            </div>
+        </div>
+
+        <div id="parents-table-container">
+            <div id="parents-loading" class="loading">Chargement des parents...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Gestion Éducateurs -->
+<div id="admin-educators" class="tab-content">
+    <div class="dashboard-card">
+        <h2>Gestion des Éducateurs</h2>
+        
+        <div style="margin-bottom: 20px;">
+            <button class="btn" id="show-add-educator-btn">Ajouter Éducateur</button>
+            <button class="btn btn-secondary" id="refresh-educators-btn">Actualiser</button>
+        </div>
+
+        <!-- Formulaire d'ajout -->
+        <div id="add-educator-form" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+            <h3>Ajouter Nouvel Éducateur</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Nom Complet</label>
+                    <input type="text" id="new-educator-name" placeholder="Nom et prénom">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="new-educator-email" placeholder="email@garderie.com">
+                </div>
+                <div class="form-group">
+                    <label>Téléphone</label>
+                    <input type="tel" id="new-educator-phone" placeholder="514-555-1234">
+                </div>
+                <div class="form-group">
+                    <label>Spécialisation</label>
+                    <input type="text" id="new-educator-specialization" placeholder="Éducateur spécialisé petite enfance">
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <button class="btn btn-success" id="add-educator-btn">Ajouter</button>
+                <button class="btn btn-secondary" id="cancel-add-educator-btn">Annuler</button>
+            </div>
+        </div>
+
+        <div id="educators-table-container">
+            <div id="educators-loading" class="loading">Chargement des éducateurs...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Gestion Groupes -->
+<div id="admin-groups" class="tab-content">
+    <div class="dashboard-card">
+        <h2>Gestion des Groupes</h2>
+        
+        <div style="margin-bottom: 20px;">
+            <button class="btn" id="show-add-group-btn">Ajouter Groupe</button>
+            <button class="btn btn-secondary" id="refresh-groups-btn">Actualiser</button>
+        </div>
+
+        <!-- Formulaire d'ajout -->
+        <div id="add-group-form" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+            <h3>Ajouter Nouveau Groupe</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Nom du Groupe</label>
+                    <input type="text" id="new-group-name" placeholder="ex: Coccinelles">
+                </div>
+                <div class="form-group">
+                    <label>Âge Minimum</label>
+                    <input type="number" id="new-group-age-min" min="1" max="12" placeholder="2">
+                </div>
+                <div class="form-group">
+                    <label>Âge Maximum</label>
+                    <input type="number" id="new-group-age-max" min="1" max="12" placeholder="3">
+                </div>
+                <div class="form-group">
+                    <label>Couleur</label>
+                    <input type="color" id="new-group-color" value="#3498db">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Description</label>
+                    <input type="text" id="new-group-description" placeholder="Groupe des tout-petits">
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <button class="btn btn-success" id="add-group-btn">Ajouter</button>
+                <button class="btn btn-secondary" id="cancel-add-group-btn">Annuler</button>
+            </div>
+        </div>
+
+        <div id="groups-table-container">
+            <div id="groups-loading" class="loading">Chargement des groupes...</div>
+        </div>
+    </div>
+</div>
     </div>
 
     <script>
@@ -777,6 +908,150 @@
             console.log('Token d\'authentification trouvé');
             // Optionnel: vérifier la validité du token avec le serveur
         }
+		
+		// === FONCTIONS ADMIN ===
+
+// Chargement des parents
+async function loadParentsAdmin() {
+    if (!authToken) {
+        showStatusMessage('Vous devez être connecté', 'error');
+        return;
+    }
+
+    document.getElementById('parents-loading').style.display = 'block';
+    
+    try {
+        const response = await authenticatedFetch(`${API_BASE}/admin/parents`);
+        const result = await response.json();
+        
+        if (result.success) {
+            displayParentsTable(result.parents);
+        } else {
+            showStatusMessage('Erreur de chargement des parents', 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showStatusMessage('Erreur de connexion', 'error');
+    }
+}
+
+// Affichage du tableau des parents
+function displayParentsTable(parents) {
+    const container = document.getElementById('parents-table-container');
+    
+    let tableHTML = `
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+                <tr style="background: #2c3e50; color: white;">
+                    <th style="padding: 12px; text-align: left;">Nom</th>
+                    <th style="padding: 12px; text-align: left;">Email</th>
+                    <th style="padding: 12px; text-align: left;">Téléphone</th>
+                    <th style="padding: 12px; text-align: left;">Enfants</th>
+                    <th style="padding: 12px; text-align: left;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    parents.forEach(parent => {
+        const children = parent.children ? 
+            (typeof parent.children === 'string' ? JSON.parse(parent.children) : parent.children) : [];
+        
+        tableHTML += `
+            <tr style="border-bottom: 1px solid #ddd;">
+                <td style="padding: 12px;">${parent.name}</td>
+                <td style="padding: 12px;">${parent.email}</td>
+                <td style="padding: 12px;">${parent.phone || 'Non spécifié'}</td>
+                <td style="padding: 12px;">${Array.isArray(children) ? children.join(', ') : children}</td>
+                <td style="padding: 12px;">
+                    <button class="btn btn-danger" onclick="deleteParent(${parent.id})" style="padding: 5px 10px; font-size: 12px;">Supprimer</button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    tableHTML += '</tbody></table>';
+    container.innerHTML = tableHTML;
+}
+
+// Ajouter un parent
+async function addParent() {
+    const name = document.getElementById('new-parent-name').value.trim();
+    const email = document.getElementById('new-parent-email').value.trim();
+    const phone = document.getElementById('new-parent-phone').value.trim();
+    
+    if (!name || !email) {
+        showStatusMessage('Nom et email sont requis', 'error');
+        return;
+    }
+    
+    try {
+        const response = await authenticatedFetch(`${API_BASE}/admin/parents`, {
+            method: 'POST',
+            body: JSON.stringify({ name, email, phone })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showStatusMessage('Parent ajouté avec succès', 'success');
+            document.getElementById('add-parent-form').style.display = 'none';
+            document.getElementById('new-parent-name').value = '';
+            document.getElementById('new-parent-email').value = '';
+            document.getElementById('new-parent-phone').value = '';
+            loadParentsAdmin();
+        } else {
+            showStatusMessage(result.error || 'Erreur lors de l\'ajout', 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showStatusMessage('Erreur de connexion', 'error');
+    }
+}
+
+// Supprimer un parent
+async function deleteParent(parentId) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce parent ?')) {
+        return;
+    }
+    
+    try {
+        const response = await authenticatedFetch(`${API_BASE}/admin/parents/${parentId}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showStatusMessage('Parent supprimé avec succès', 'success');
+            loadParentsAdmin();
+        } else {
+            showStatusMessage(result.error || 'Erreur lors de la suppression', 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showStatusMessage('Erreur de connexion', 'error');
+    }
+}
+
+// Event listeners pour les nouveaux onglets
+document.addEventListener('DOMContentLoaded', function() {
+    // Vos event listeners existants...
+
+    // Nouveaux event listeners
+    document.querySelector('[data-tab="admin-parents"]')?.addEventListener('click', loadParentsAdmin);
+    
+    document.getElementById('show-add-parent-btn')?.addEventListener('click', () => {
+        document.getElementById('add-parent-form').style.display = 'block';
+    });
+    
+    document.getElementById('cancel-add-parent-btn')?.addEventListener('click', () => {
+        document.getElementById('add-parent-form').style.display = 'none';
+    });
+    
+    document.getElementById('add-parent-btn')?.addEventListener('click', addParent);
+    document.getElementById('refresh-parents-btn')?.addEventListener('click', loadParentsAdmin);
+});
 		
 		// Fonction pour charger le tableau de bord
 async function loadDashboard() {
