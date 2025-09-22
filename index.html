@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Les Petits Moulins - Système d'Autorisation</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #a8d5ba 0%, #7fb069 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            color: #2c3e50;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            background: rgba(44, 62, 80, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-tab {
+            background: transparent;
+            border: none;
+            color: #2c3e50;
+            padding: 12px 24px;
+            margin: 0 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab:hover {
+            background: rgba(44, 62, 80, 0.15);
+        }
+
+        .nav-tab.active {
+            background: rgba(44, 62, 80, 0.2);
+            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-card, .dashboard-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #7fb069;
+            box-shadow: 0 0 0 3px rgba(127, 176, 105, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #7fb069 0%, #5d8a4a 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(127, 176, 105, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #b8860b 0%, #daa520 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .success-message {
+            background: #d5f4e6;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .verification-code-input {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .verification-code-input input {
+            width: 50px !important;
+            height: 50px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+        }
+
+        .parent-info {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #7fb069;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .status-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .status-info {
+            background: #3498db;
+        }
+
+        .status-success {
+            background: #27ae60;
+        }
+
+        .status-error {
+            background: #e74c3c;
+        }
+
+        @media (max-width: 768px) {
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .nav-tab {
+                margin: 5px 0;
+            }
+            
+            .form-card, .dashboard-card {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌟 Les Petits Moulins - Système d'Autorisation</h1>
+            <p>Formulaires numériques sécurisés</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="parent-form">Formulaire Parent</button>
+            <button class="nav-tab" data-tab="admin-dashboard">Tableau de Bord</button>
+        </div>
+
+        <!-- Parent Form Tab -->
+        <div id="parent-form" class="tab-content active">
+            <div class="form-card">
+                <h2>Formulaire d'Autorisation Parent</h2>
+                
+                <!-- Email Entry -->
+                <div id="email-step">
+                    <div class="form-group">
+                        <label for="parent-email">Votre Adresse Courriel</label>
+                        <input type="email" id="parent-email" placeholder="Entrez votre adresse courriel">
+                        <div id="email-error" class="error-message"></div>
+                    </div>
+                    <button class="btn" id="send-verification-btn">Envoyer Code de Vérification</button>
+                </div>
+
+                <!-- Verification Code -->
+                <div id="verification-step" style="display: none;">
+                    <div class="success-message">
+                        <strong>📧 Code de vérification envoyé!</strong>
+                        <br>Nous avons envoyé un code de vérification à 6 chiffres à votre adresse courriel.
+                        <br>Veuillez vérifier votre boîte de réception et vos courriers indésirables.
+                    </div>
+                    
+                    <div style="text-align: center; margin: 20px 0;">
+                        <p><strong>Entrez le code de vérification:</strong></p>
+                        <div class="verification-code-input">
+                            <input type="text" maxlength="1" id="code1">
+                            <input type="text" maxlength="1" id="code2">
+                            <input type="text" maxlength="1" id="code3">
+                            <input type="text" maxlength="1" id="code4">
+                            <input type="text" maxlength="1" id="code5">
+                            <input type="text" maxlength="1" id="code6">
+                        </div>
+                        <div id="verification-error" class="error-message"></div>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <button class="btn" id="verify-code-btn">Vérifier le Code</button>
+                        <button class="btn btn-secondary" id="go-back-btn">Retour</button>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 15px;">
+                        <p>Vous n'avez pas reçu le code? 
+                            <button id="resend-code-btn" style="background: none; border: none; color: #3498db; text-decoration: underline; cursor: pointer;">Renvoyer le code</button>
+                        </p>
+                        <p id="resend-timer" style="color: #666; font-size: 12px;"></p>
+                    </div>
+                </div>
+
+                <!-- Authorization Form -->
+                <div id="authorization-form" style="display: none;">
+                    <div class="success-message">
+                        <strong>✅ Vérification réussie!</strong> Complétez le formulaire ci-dessous.
+                    </div>
+                    
+                    <div id="parent-info" class="parent-info"></div>
+
+                    <form id="auth-form">
+                        <div class="form-group">
+                            <label for="form-type">Type de Formulaire</label>
+                            <select id="form-type" required>
+                                <option value="">Sélectionnez le type...</option>
+                                <option value="field-trip">Permission de Sortie Éducative</option>
+                                <option value="medical">Autorisation de Traitement Médical</option>
+                                <option value="photo-release">Autorisation Photo/Vidéo</option>
+                                <option value="pickup-authorization">Autorisation de Récupération</option>
+                                <option value="swimming">Permission d'Activité de Natation</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="activity-description">Description de l'Activité</label>
+                            <textarea id="activity-description" rows="4" placeholder="Description..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="event-date">Date de l'Événement</label>
+                            <input type="date" id="event-date">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Enfants Sélectionnés</label>
+                            <div id="children-selection"></div>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="consent-given" required>
+                            <label for="consent-given">Je donne mon consentement</label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="additional-notes">Notes Additionnelles</label>
+                            <textarea id="additional-notes" rows="3"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="digital-signature">Signature Numérique</label>
+                            <input type="text" id="digital-signature" placeholder="Tapez votre nom complet" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">Soumettre</button>
+                        <button type="button" class="btn btn-secondary" id="reset-form-btn">Réinitialiser</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="admin-dashboard" class="tab-content">
+            <div class="dashboard-card">
+                <h2>Tableau de Bord</h2>
+                <div class="loading">Fonctionnalité en cours de développement...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - Remplacez par votre URL backend Render
+        const API_BASE = 'https://petits-moulins-api.onrender.com/api'; // CHANGEZ CETTE URL
+        
+        // Variables globales
+        let authToken = localStorage.getItem('authToken');
+        let currentParent = null;
+        let currentParentEmail = '';
+        let resendTimer = 0;
+        let resendInterval = null;
+
+        // Descriptions des formulaires
+        const formDescriptions = {
+            'field-trip': 'Sortie éducative prévue avec les enfants. Transport sécurisé et supervision complète.',
+            'medical': 'Autorisation pour administration de médicaments ou soins d\'urgence.',
+            'photo-release': 'Autorisation pour photos/vidéos dans le cadre des activités de la garderie.',
+            'pickup-authorization': 'Autorisation pour qu\'une personne désignée vienne chercher votre enfant.',
+            'swimming': 'Autorisation pour activités aquatiques avec surveillance qualifiée.'
+        };
+
+        // Fonction pour afficher les messages de statut
+        function showStatusMessage(message, type = 'info', duration = 5000) {
+            // Supprimer les anciens messages
+            const existingMessages = document.querySelectorAll('.status-message');
+            existingMessages.forEach(msg => msg.remove());
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `status-message status-${type}`;
+            messageDiv.innerHTML = message;
+            
+            document.body.appendChild(messageDiv);
+            
+            // Auto-remove après la durée spécifiée
+            setTimeout(() => {
+                if (messageDiv.parentElement) {
+                    messageDiv.remove();
+                }
+            }, duration);
+        }
+
+        // Fonction pour faire des requêtes authentifiées
+        async function authenticatedFetch(url, options = {}) {
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            
+            if (authToken) {
+                headers.Authorization = `Bearer ${authToken}`;
+            }
+            
+            return fetch(url, {
+                ...options,
+                headers
+            });
+        }
+
+        // Gestion de l'envoi du code de vérification
+        async function handleSendVerification() {
+            const email = document.getElementById('parent-email').value.trim();
+            const errorDiv = document.getElementById('email-error');
+            const sendBtn = document.getElementById('send-verification-btn');
+            
+            if (!email) {
+                errorDiv.textContent = 'Veuillez entrer votre adresse courriel.';
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                errorDiv.textContent = 'Format d\'adresse courriel invalide.';
+                return;
+            }
+            
+            try {
+                sendBtn.disabled = true;
+                sendBtn.textContent = 'Envoi en cours...';
+                errorDiv.textContent = '';
+                
+                const response = await fetch(`${API_BASE}/auth/send-verification`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    errorDiv.textContent = result.error || 'Erreur lors de l\'envoi';
+                    return;
+                }
+                
+                currentParentEmail = email;
+                document.getElementById('email-step').style.display = 'none';
+                document.getElementById('verification-step').style.display = 'block';
+                document.getElementById('code1').focus();
+                
+                showStatusMessage('Code de vérification envoyé avec succès!', 'success');
+                
+                // Afficher le code de développement dans la console si disponible
+                if (result.dev_code) {
+                    console.log('Code de vérification de développement:', result.dev_code);
+                    showStatusMessage(`Code de test: ${result.dev_code}`, 'info', 10000);
+                }
+                
+                startResendTimer();
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                errorDiv.textContent = 'Erreur de connexion au serveur.';
+                showStatusMessage('Erreur de connexion au serveur', 'error');
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Envoyer Code de Vérification';
+            }
+        }
+
+        // Gestion de la vérification du code
+        async function handleVerifyCode() {
+            const code = ['code1', 'code2', 'code3', 'code4', 'code5', 'code6']
+                .map(id => document.getElementById(id).value)
+                .join('');
+            
+            const errorDiv = document.getElementById('verification-error');
+            const verifyBtn = document.getElementById('verify-code-btn');
+            
+            if (code.length !== 6) {
+                errorDiv.textContent = 'Veuillez entrer le code complet.';
+                return;
+            }
+            
+            try {
+                verifyBtn.disabled = true;
+                verifyBtn.textContent = 'Vérification...';
+                errorDiv.textContent = '';
+                
+                const response = await fetch(`${API_BASE}/auth/verify-code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        email: currentParentEmail, 
+                        code: code 
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    errorDiv.textContent = result.error || 'Code incorrect';
+                    // Réinitialiser les champs
+                    ['code1', 'code2', 'code3', 'code4', 'code5', 'code6'].forEach(id => {
+                        document.getElementById(id).value = '';
+                    });
+                    document.getElementById('code1').focus();
+                    return;
+                }
+                
+                // Stocker le token d'authentification
+                authToken = result.token;
+                localStorage.setItem('authToken', authToken);
+                currentParent = result.parent;
+                
+                // Afficher le formulaire
+                document.getElementById('verification-step').style.display = 'none';
+                document.getElementById('authorization-form').style.display = 'block';
+                populateParentInfo();
+                
+                showStatusMessage('Vérification réussie!', 'success');
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                errorDiv.textContent = 'Erreur de connexion au serveur.';
+                showStatusMessage('Erreur de connexion au serveur', 'error');
+            } finally {
+                verifyBtn.disabled = false;
+                verifyBtn.textContent = 'Vérifier le Code';
+            }
+        }
+
+        // Fonction pour valider l'email
+        function isValidEmail(email) {
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailPattern.test(email);
+        }
+
+        // Fonction pour remplir les informations du parent
+        function populateParentInfo() {
+            if (!currentParent) return;
+            
+            let childrenDisplay = '';
+            
+            if (currentParent.children_details) {
+                const details = typeof currentParent.children_details === 'string' ? 
+                    JSON.parse(currentParent.children_details) : 
+                    currentParent.children_details;
+                
+                childrenDisplay = details.map(child => {
+                    return `${child.name} (${child.age} ans, ${child.group || 'Groupe non spécifié'})`;
+                }).join('<br>');
+            } else if (currentParent.children) {
+                const children = typeof currentParent.children === 'string' ? 
+                    JSON.parse(currentParent.children) : 
+                    currentParent.children;
+                childrenDisplay = Array.isArray(children) ? children.join('<br>') : children;
+            }
+            
+            document.getElementById('parent-info').innerHTML = 
+                '<h4>Informations du Parent</h4>' +
+                '<p><strong>Nom:</strong> ' + currentParent.name + '</p>' +
+                '<p><strong>Email:</strong> ' + currentParent.email + '</p>' +
+                '<p><strong>Téléphone:</strong> ' + (currentParent.phone || 'Non spécifié') + '</p>' +
+                '<p><strong>Enfants:</strong><br>' + childrenDisplay + '</p>';
+            
+            // Peupler la sélection des enfants
+            populateChildrenSelection();
+        }
+
+        // Fonction pour peupler la sélection des enfants
+        function populateChildrenSelection() {
+            if (!currentParent) return;
+            
+            let children = [];
+            
+            if (currentParent.children_details) {
+                const details = typeof currentParent.children_details === 'string' ? 
+                    JSON.parse(currentParent.children_details) : 
+                    currentParent.children_details;
+                children = details.map(child => child.name);
+            } else if (currentParent.children) {
+                const childrenData = typeof currentParent.children === 'string' ? 
+                    JSON.parse(currentParent.children) : 
+                    currentParent.children;
+                children = Array.isArray(childrenData) ? childrenData : [childrenData];
+            }
+            
+            document.getElementById('children-selection').innerHTML = children.map(child => {
+                const safeId = child.replace(/[^a-zA-Z0-9]/g, '-');
+                return '<div class="checkbox-group">' +
+                    '<input type="checkbox" id="child-' + safeId + '" value="' + child + '" checked>' +
+                    '<label for="child-' + safeId + '">' + child + '</label>' +
+                    '</div>';
+            }).join('');
+        }
+
+        // Fonction pour démarrer le timer de renvoi
+        function startResendTimer() {
+            resendTimer = 30;
+            const timerDiv = document.getElementById('resend-timer');
+            const resendBtn = document.getElementById('resend-code-btn');
+            
+            resendBtn.disabled = true;
+            
+            resendInterval = setInterval(() => {
+                if (resendTimer > 0) {
+                    timerDiv.textContent = `Vous pouvez renvoyer le code dans ${resendTimer} secondes`;
+                    resendTimer--;
+                } else {
+                    timerDiv.textContent = '';
+                    resendBtn.disabled = false;
+                    clearInterval(resendInterval);
+                }
+            }, 1000);
+        }
+
+        // Fonction pour retourner à l'étape email
+        function handleGoBack() {
+            document.getElementById('verification-step').style.display = 'none';
+            document.getElementById('email-step').style.display = 'block';
+            ['code1', 'code2', 'code3', 'code4', 'code5', 'code6'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            document.getElementById('verification-error').textContent = '';
+            
+            if (resendInterval) {
+                clearInterval(resendInterval);
+                resendTimer = 0;
+            }
+        }
+
+        // Fonction pour renvoyer le code
+        async function handleResendCode() {
+            if (resendTimer > 0) return;
+            
+            await handleSendVerification();
+        }
+
+        // Gestion de la navigation par onglets
+        function switchTab(tabName) {
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Gestion de la soumission du formulaire
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            if (!authToken) {
+                showStatusMessage('Vous devez être authentifié pour soumettre un formulaire', 'error');
+                return;
+            }
+
+            const formData = {
+                form_type: document.getElementById('form-type').value,
+                activity_description: document.getElementById('activity-description').value,
+                event_date: document.getElementById('event-date').value,
+                consent_given: document.getElementById('consent-given').checked,
+                additional_notes: document.getElementById('additional-notes').value,
+                digital_signature: document.getElementById('digital-signature').value,
+                children: Array.from(document.querySelectorAll('#children-selection input:checked'))
+                    .map(input => input.value)
+            };
+
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/forms/submit`, {
+                    method: 'POST',
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showStatusMessage('Formulaire soumis avec succès!', 'success');
+                    document.getElementById('auth-form').reset();
+                } else {
+                    showStatusMessage(result.error || 'Erreur lors de la soumission', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur soumission:', error);
+                showStatusMessage('Erreur de connexion', 'error');
+            }
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Navigation
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+            });
+
+            // Contrôles de formulaire
+            document.getElementById('send-verification-btn').addEventListener('click', handleSendVerification);
+            document.getElementById('verify-code-btn').addEventListener('click', handleVerifyCode);
+            document.getElementById('go-back-btn').addEventListener('click', handleGoBack);
+            document.getElementById('resend-code-btn').addEventListener('click', handleResendCode);
+            
+            // Navigation entre les champs de code
+            document.querySelectorAll('#verification-step input').forEach((input, index) => {
+                input.addEventListener('input', () => {
+                    if (input.value.length === input.maxLength) {
+                        const nextInput = document.getElementById('code' + (index + 2));
+                        if (nextInput) {
+                            nextInput.focus();
+                        } else {
+                            setTimeout(handleVerifyCode, 100);
+                        }
+                    }
+                });
+                
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && input.value === '') {
+                        const prevInput = document.getElementById('code' + index);
+                        if (prevInput) {
+                            prevInput.focus();
+                        }
+                    }
+                });
+            });
+
+            // Gestion du changement de type de formulaire
+            document.getElementById('form-type').addEventListener('change', () => {
+                const formType = document.getElementById('form-type').value;
+                const descriptionField = document.getElementById('activity-description');
+                if (formDescriptions[formType]) {
+                    descriptionField.value = formDescriptions[formType];
+                }
+            });
+
+            // Soumission du formulaire
+            document.getElementById('auth-form').addEventListener('submit', handleFormSubmit);
+
+            // Réinitialisation du formulaire
+            document.getElementById('reset-form-btn').addEventListener('click', () => {
+                document.getElementById('auth-form').reset();
+            });
+
+            // Entrée sur le champ email
+            document.getElementById('parent-email').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleSendVerification();
+                }
+            });
+        });
+
+        // Vérifier si l'utilisateur est déjà authentifié au chargement
+        if (authToken) {
+            console.log('Token d\'authentification trouvé');
+            // Optionnel: vérifier la validité du token avec le serveur
+        }
+    </script>
+</body>
+</html>
