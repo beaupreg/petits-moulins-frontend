@@ -914,6 +914,218 @@
 		
 		// === FONCTIONS ADMIN ===
 
+// === FONCTIONS POUR ÉDUCATEURS ===
+
+async function loadEducatorsAdmin() {
+    if (!authToken) {
+        showStatusMessage('Vous devez être connecté', 'error');
+        return;
+    }
+
+    const loadingElement = document.getElementById('educators-loading');
+    if (loadingElement) {
+        loadingElement.style.display = 'block';
+    }
+    
+    try {
+        const response = await authenticatedFetch(`${API_BASE}/admin/educators`);
+        const result = await response.json();
+        
+        if (result.success) {
+            displayEducatorsTable(result.educators);
+        } else {
+            showStatusMessage('Erreur de chargement des éducateurs', 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showStatusMessage('Erreur de connexion', 'error');
+    }
+}
+
+function displayEducatorsTable(educators) {
+    const container = document.getElementById('educators-table-container');
+    
+    let tableHTML = `
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+                <tr style="background: #2c3e50; color: white;">
+                    <th style="padding: 12px; text-align: left;">Nom</th>
+                    <th style="padding: 12px; text-align: left;">Email</th>
+                    <th style="padding: 12px; text-align: left;">Téléphone</th>
+                    <th style="padding: 12px; text-align: left;">Spécialisation</th>
+                    <th style="padding: 12px; text-align: left;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    educators.forEach(educator => {
+        tableHTML += `
+            <tr style="border-bottom: 1px solid #ddd;">
+                <td style="padding: 12px;">${educator.name}</td>
+                <td style="padding: 12px;">${educator.email || 'Non spécifié'}</td>
+                <td style="padding: 12px;">${educator.phone || 'Non spécifié'}</td>
+                <td style="padding: 12px;">${educator.specialization || 'Non spécifié'}</td>
+                <td style="padding: 12px;">
+                    <button class="btn btn-danger" onclick="deleteEducator(${educator.id})" style="padding: 5px 10px; font-size: 12px;">Supprimer</button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    tableHTML += '</tbody></table>';
+    container.innerHTML = tableHTML;
+}
+
+async function addEducator() {
+    const name = document.getElementById('new-educator-name').value.trim();
+    const email = document.getElementById('new-educator-email').value.trim();
+    const phone = document.getElementById('new-educator-phone').value.trim();
+    const specialization = document.getElementById('new-educator-specialization').value.trim();
+    
+    if (!name) {
+        showStatusMessage('Le nom est requis', 'error');
+        return;
+    }
+    
+    try {
+        const response = await authenticatedFetch(`${API_BASE}/admin/educators`, {
+            method: 'POST',
+            body: JSON.stringify({ name, email, phone, specialization })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showStatusMessage('Éducateur ajouté avec succès', 'success');
+            document.getElementById('add-educator-form').style.display = 'none';
+            // Réinitialiser le formulaire
+            document.getElementById('new-educator-name').value = '';
+            document.getElementById('new-educator-email').value = '';
+            document.getElementById('new-educator-phone').value = '';
+            document.getElementById('new-educator-specialization').value = '';
+            loadEducatorsAdmin();
+        } else {
+            showStatusMessage(result.error || 'Erreur lors de l\'ajout', 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showStatusMessage('Erreur de connexion', 'error');
+    }
+}
+
+// === FONCTIONS POUR GROUPES ===
+
+async function loadGroupsAdmin() {
+    if (!authToken) {
+        showStatusMessage('Vous devez être connecté', 'error');
+        return;
+    }
+
+    const loadingElement = document.getElementById('groups-loading');
+    if (loadingElement) {
+        loadingElement.style.display = 'block';
+    }
+    
+    try {
+        const response = await authenticatedFetch(`${API_BASE}/admin/groups`);
+        const result = await response.json();
+        
+        if (result.success) {
+            displayGroupsTable(result.groups);
+        } else {
+            showStatusMessage('Erreur de chargement des groupes', 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showStatusMessage('Erreur de connexion', 'error');
+    }
+}
+
+function displayGroupsTable(groups) {
+    const container = document.getElementById('groups-table-container');
+    
+    let tableHTML = `
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+                <tr style="background: #2c3e50; color: white;">
+                    <th style="padding: 12px; text-align: left;">Nom</th>
+                    <th style="padding: 12px; text-align: left;">Âge</th>
+                    <th style="padding: 12px; text-align: left;">Description</th>
+                    <th style="padding: 12px; text-align: left;">Couleur</th>
+                    <th style="padding: 12px; text-align: left;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    groups.forEach(group => {
+        tableHTML += `
+            <tr style="border-bottom: 1px solid #ddd;">
+                <td style="padding: 12px;">${group.name}</td>
+                <td style="padding: 12px;">${group.age_min}-${group.age_max} ans</td>
+                <td style="padding: 12px;">${group.description || 'Aucune description'}</td>
+                <td style="padding: 12px;">
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 20px; height: 20px; background-color: ${group.color}; border-radius: 50%; margin-right: 10px;"></div>
+                        ${group.color}
+                    </div>
+                </td>
+                <td style="padding: 12px;">
+                    <button class="btn btn-danger" onclick="deleteGroup(${group.id})" style="padding: 5px 10px; font-size: 12px;">Supprimer</button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    tableHTML += '</tbody></table>';
+    container.innerHTML = tableHTML;
+}
+
+async function addGroup() {
+    const name = document.getElementById('new-group-name').value.trim();
+    const age_min = parseInt(document.getElementById('new-group-age-min').value);
+    const age_max = parseInt(document.getElementById('new-group-age-max').value);
+    const description = document.getElementById('new-group-description').value.trim();
+    const color = document.getElementById('new-group-color').value;
+    
+    if (!name || !age_min || !age_max) {
+        showStatusMessage('Nom et âges sont requis', 'error');
+        return;
+    }
+    
+    if (age_min >= age_max) {
+        showStatusMessage('L\'âge minimum doit être inférieur à l\'âge maximum', 'error');
+        return;
+    }
+    
+    try {
+        const response = await authenticatedFetch(`${API_BASE}/admin/groups`, {
+            method: 'POST',
+            body: JSON.stringify({ name, age_min, age_max, description, color })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showStatusMessage('Groupe ajouté avec succès', 'success');
+            document.getElementById('add-group-form').style.display = 'none';
+            // Réinitialiser le formulaire
+            document.getElementById('new-group-name').value = '';
+            document.getElementById('new-group-age-min').value = '';
+            document.getElementById('new-group-age-max').value = '';
+            document.getElementById('new-group-description').value = '';
+            document.getElementById('new-group-color').value = '#3498db';
+            loadGroupsAdmin();
+        } else {
+            showStatusMessage(result.error || 'Erreur lors de l\'ajout', 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showStatusMessage('Erreur de connexion', 'error');
+    }
+}
+
 // Chargement des parents
 async function loadParentsAdmin() {
     if (!authToken) {
@@ -1042,19 +1254,35 @@ document.addEventListener('DOMContentLoaded', function() {
     // Vos event listeners existants...
 
     // Nouveaux event listeners
-    document.querySelector('[data-tab="admin-parents"]')?.addEventListener('click', loadParentsAdmin);
-    
-    document.getElementById('show-add-parent-btn')?.addEventListener('click', () => {
+		document.querySelector('[data-tab="admin-parents"]')?.addEventListener('click', loadParentsAdmin);
+		document.querySelector('[data-tab="admin-educators"]')?.addEventListener('click', loadEducatorsAdmin);
+		document.querySelector('[data-tab="admin-groups"]')?.addEventListener('click', loadGroupsAdmin);
+		document.getElementById('show-add-parent-btn')?.addEventListener('click', () => {
         document.getElementById('add-parent-form').style.display = 'block';
     });
     
-    document.getElementById('cancel-add-parent-btn')?.addEventListener('click', () => {
+		document.getElementById('cancel-add-parent-btn')?.addEventListener('click', () => {
         document.getElementById('add-parent-form').style.display = 'none';
     });
     
-    document.getElementById('add-parent-btn')?.addEventListener('click', addParent);
-    document.getElementById('refresh-parents-btn')?.addEventListener('click', loadParentsAdmin);
-});
+		document.getElementById('add-parent-btn')?.addEventListener('click', addParent);
+		document.getElementById('refresh-parents-btn')?.addEventListener('click', loadParentsAdmin);
+	});
+		document.getElementById('show-add-educator-btn')?.addEventListener('click', () => {
+		document.getElementById('add-educator-form').style.display = 'block';
+	});
+		document.getElementById('cancel-add-educator-btn')?.addEventListener('click', () => {
+		document.getElementById('add-educator-form').style.display = 'none';
+	});
+		document.getElementById('add-educator-btn')?.addEventListener('click', addEducator);
+
+		document.getElementById('show-add-group-btn')?.addEventListener('click', () => {
+		document.getElementById('add-group-form').style.display = 'block';
+	});
+		document.getElementById('cancel-add-group-btn')?.addEventListener('click', () => {
+		document.getElementById('add-group-form').style.display = 'none';
+	});
+		document.getElementById('add-group-btn')?.addEventListener('click', addGroup);
 		
 		// Fonction pour charger le tableau de bord
 async function loadDashboard() {
