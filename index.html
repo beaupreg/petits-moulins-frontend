@@ -847,6 +847,9 @@
             // Navigation
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+			document.querySelector('[data-tab="admin-parents"]')?.addEventListener('click', loadParentsAdmin);
+			document.getElementById('show-add-parent-btn')?.addEventListener('click', () => {
+			document.getElementById('add-parent-form').style.display = 'block';
             });
 
             // Contrôles de formulaire
