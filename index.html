@@ -777,6 +777,61 @@
             console.log('Token d\'authentification trouvé');
             // Optionnel: vérifier la validité du token avec le serveur
         }
+		
+		// Fonction pour charger le tableau de bord
+async function loadDashboard() {
+  try {
+    const response = await fetch(`${API_BASE}/forms/all`);
+    const result = await response.json();
+    
+    if (result.success) {
+      displayFormsTable(result.forms);
+    }
+  } catch (error) {
+    console.error('Erreur chargement dashboard:', error);
+  }
+}
+
+// Fonction pour afficher les formulaires
+function displayFormsTable(forms) {
+  const dashboardContent = document.querySelector('#admin-dashboard .dashboard-card');
+  
+  let tableHTML = `
+    <h2>Tableau de Bord - ${forms.length} formulaires</h2>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+      <thead>
+        <tr style="background: #2c3e50; color: white;">
+          <th style="padding: 12px; text-align: left;">Date</th>
+          <th style="padding: 12px; text-align: left;">Parent</th>
+          <th style="padding: 12px; text-align: left;">Type</th>
+          <th style="padding: 12px; text-align: left;">Enfants</th>
+          <th style="padding: 12px; text-align: left;">Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+  
+  forms.forEach(form => {
+    const children = typeof form.children === 'string' ? 
+      JSON.parse(form.children) : form.children;
+    
+    tableHTML += `
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px;">${new Date(form.date_submitted).toLocaleDateString('fr-CA')}</td>
+        <td style="padding: 12px;">${form.parent_name}</td>
+        <td style="padding: 12px;">${form.form_type}</td>
+        <td style="padding: 12px;">${Array.isArray(children) ? children.join(', ') : children}</td>
+        <td style="padding: 12px;"><span style="color: #27ae60; font-weight: bold;">${form.status}</span></td>
+      </tr>
+    `;
+  });
+  
+  tableHTML += '</tbody></table>';
+  dashboardContent.innerHTML = tableHTML;
+}
+
+// Ajouter dans la navigation
+document.querySelector('[data-tab="admin-dashboard"]').addEventListener('click', loadDashboard);
     </script>
 </body>
 </html>
