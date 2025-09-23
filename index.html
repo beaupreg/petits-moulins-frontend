@@ -148,6 +148,10 @@
             background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
         }
 
+        .btn-info {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+
         .error-message {
             color: #e74c3c;
             font-size: 14px;
@@ -230,6 +234,57 @@
             background: #e74c3c;
         }
 
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .child-association {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #3498db;
+        }
+
+        .child-info {
+            flex: 1;
+        }
+
+        .relationship-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .custody-shared {
+            background: #e8f5e8;
+            color: #2e7d2e;
+        }
+
+        .custody-primary {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .custody-secondary {
+            background: #cce7ff;
+            color: #004085;
+        }
+
         @media (max-width: 768px) {
             .nav-tabs {
                 flex-direction: column;
@@ -253,13 +308,14 @@
     <div class="container">
         <div class="header">
             <h1>🌟 Les Petits Moulins - Système d'Autorisation</h1>
-            <p>Formulaires numériques sécurisés</p>
+            <p>Formulaires numériques sécurisés - Gestion familiale avancée</p>
         </div>
 
         <div class="nav-tabs">
             <button class="nav-tab active" data-tab="parent-form">Formulaire Parent</button>
             <button class="nav-tab" data-tab="admin-dashboard">Tableau de Bord</button>
             <button class="nav-tab" data-tab="admin-parents">Gestion Parents</button>
+            <button class="nav-tab" data-tab="admin-children">Gestion Enfants</button>
             <button class="nav-tab" data-tab="admin-educators">Gestion Éducateurs</button>
             <button class="nav-tab" data-tab="admin-groups">Gestion Groupes</button>
         </div>
@@ -389,9 +445,9 @@
                     <button class="btn btn-secondary" id="refresh-parents-btn">Actualiser</button>
                 </div>
 
-                <!-- Formulaire d'ajout -->
+                <!-- Formulaire d'ajout/modification -->
                 <div id="add-parent-form" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                    <h3>Ajouter Nouveau Parent</h3>
+                    <h3 id="parent-form-title">Ajouter Nouveau Parent</h3>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div class="form-group">
                             <label>Nom Complet</label>
@@ -406,14 +462,80 @@
                             <input type="tel" id="new-parent-phone" placeholder="514-555-1234">
                         </div>
                     </div>
+                    
+                    <div class="form-group">
+                        <label>Gestion des Enfants</label>
+                        <div style="margin-bottom: 15px;">
+                            <button type="button" class="btn btn-info" id="associate-existing-child-btn">Associer enfant existant</button>
+                            <button type="button" class="btn btn-secondary" id="create-new-child-btn">Créer nouvel enfant</button>
+                        </div>
+                        <div id="parent-children-list"></div>
+                    </div>
+                    
                     <div style="margin-top: 15px;">
-                        <button class="btn btn-success" id="add-parent-btn">Ajouter</button>
+                        <button class="btn btn-success" id="save-parent-btn">Ajouter</button>
                         <button class="btn btn-secondary" id="cancel-add-parent-btn">Annuler</button>
                     </div>
                 </div>
 
                 <div id="parents-table-container">
                     <div id="parents-loading" class="loading">Chargement des parents...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gestion Enfants -->
+        <div id="admin-children" class="tab-content">
+            <div class="dashboard-card">
+                <h2>Gestion des Enfants</h2>
+                
+                <div style="margin-bottom: 20px;">
+                    <button class="btn" id="show-add-child-btn">Ajouter Enfant</button>
+                    <button class="btn btn-secondary" id="refresh-children-btn">Actualiser</button>
+                </div>
+
+                <!-- Formulaire d'ajout/modification enfant -->
+                <div id="add-child-form" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h3 id="child-form-title">Ajouter Nouvel Enfant</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Nom Complet</label>
+                            <input type="text" id="new-child-name" placeholder="Prénom et nom">
+                        </div>
+                        <div class="form-group">
+                            <label>Âge</label>
+                            <input type="number" id="new-child-age" min="1" max="12" placeholder="Age">
+                        </div>
+                        <div class="form-group">
+                            <label>Date de Naissance</label>
+                            <input type="date" id="new-child-birthdate">
+                        </div>
+                        <div class="form-group">
+                            <label>Groupe</label>
+                            <select id="new-child-group">
+                                <option value="">Sélectionner un groupe</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Éducateur Principal</label>
+                            <select id="new-child-educator">
+                                <option value="">Sélectionner un éducateur</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Allergies/Notes Médicales</label>
+                            <textarea id="new-child-medical-notes" rows="3" placeholder="Allergies, médicaments, etc."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <button class="btn btn-success" id="save-child-btn">Ajouter</button>
+                        <button class="btn btn-secondary" id="cancel-add-child-btn">Annuler</button>
+                    </div>
+                </div>
+
+                <div id="children-table-container">
+                    <div id="children-loading" class="loading">Chargement des enfants...</div>
                 </div>
             </div>
         </div>
@@ -428,9 +550,9 @@
                     <button class="btn btn-secondary" id="refresh-educators-btn">Actualiser</button>
                 </div>
 
-                <!-- Formulaire d'ajout -->
+                <!-- Formulaire d'ajout/modification -->
                 <div id="add-educator-form" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                    <h3>Ajouter Nouvel Éducateur</h3>
+                    <h3 id="educator-form-title">Ajouter Nouvel Éducateur</h3>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div class="form-group">
                             <label>Nom Complet</label>
@@ -450,7 +572,7 @@
                         </div>
                     </div>
                     <div style="margin-top: 15px;">
-                        <button class="btn btn-success" id="add-educator-btn">Ajouter</button>
+                        <button class="btn btn-success" id="save-educator-btn">Ajouter</button>
                         <button class="btn btn-secondary" id="cancel-add-educator-btn">Annuler</button>
                     </div>
                 </div>
@@ -471,9 +593,9 @@
                     <button class="btn btn-secondary" id="refresh-groups-btn">Actualiser</button>
                 </div>
 
-                <!-- Formulaire d'ajout -->
+                <!-- Formulaire d'ajout/modification -->
                 <div id="add-group-form" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                    <h3>Ajouter Nouveau Groupe</h3>
+                    <h3 id="group-form-title">Ajouter Nouveau Groupe</h3>
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
                         <div class="form-group">
                             <label>Nom du Groupe</label>
@@ -497,7 +619,7 @@
                         </div>
                     </div>
                     <div style="margin-top: 15px;">
-                        <button class="btn btn-success" id="add-group-btn">Ajouter</button>
+                        <button class="btn btn-success" id="save-group-btn">Ajouter</button>
                         <button class="btn btn-secondary" id="cancel-add-group-btn">Annuler</button>
                     </div>
                 </div>
@@ -519,6 +641,13 @@
         let currentParentEmail = '';
         let resendTimer = 0;
         let resendInterval = null;
+        let editingParentId = null;
+        let editingChildId = null;
+        let editingEducatorId = null;
+        let editingGroupId = null;
+        let allChildren = [];
+        let allEducators = [];
+        let allGroups = [];
 
         // Descriptions des formulaires
         const formDescriptions = {
@@ -575,6 +704,27 @@
             
             if (selectedTab) selectedTab.classList.add('active');
             if (selectedContent) selectedContent.classList.add('active');
+        }
+
+        function createModal(id, content) {
+            closeModal(id);
+            const modalDiv = document.createElement('div');
+            modalDiv.id = id;
+            modalDiv.className = 'modal';
+            modalDiv.innerHTML = content;
+            document.body.appendChild(modalDiv);
+            
+            // Fermeture au clic sur le fond
+            modalDiv.addEventListener('click', (e) => {
+                if (e.target === modalDiv) {
+                    closeModal(id);
+                }
+            });
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.remove();
         }
 
         // === FONCTIONS AUTHENTIFICATION ===
@@ -884,6 +1034,66 @@
             dashboardContent.innerHTML = tableHTML;
         }
 
+        // === FONCTIONS CHARGEMENT DONNÉES ===
+
+        async function loadAllChildren() {
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/admin/children`);
+                const result = await response.json();
+                allChildren = result.success ? result.children : [];
+                return allChildren;
+            } catch (error) {
+                console.error('Erreur chargement enfants:', error);
+                allChildren = [];
+                return [];
+            }
+        }
+
+        async function loadAllEducators() {
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/admin/educators`);
+                const result = await response.json();
+                allEducators = result.success ? result.educators : [];
+                return allEducators;
+            } catch (error) {
+                console.error('Erreur chargement éducateurs:', error);
+                allEducators = [];
+                return [];
+            }
+        }
+
+        async function loadAllGroups() {
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/admin/groups`);
+                const result = await response.json();
+                allGroups = result.success ? result.groups : [];
+                return allGroups;
+            } catch (error) {
+                console.error('Erreur chargement groupes:', error);
+                allGroups = [];
+                return [];
+            }
+        }
+
+        async function populateSelectOptions() {
+            await loadAllEducators();
+            await loadAllGroups();
+            
+            // Peupler les sélects d'enfants
+            const childGroupSelect = document.getElementById('new-child-group');
+            const childEducatorSelect = document.getElementById('new-child-educator');
+            
+            if (childGroupSelect) {
+                childGroupSelect.innerHTML = '<option value="">Sélectionner un groupe</option>' + 
+                    allGroups.map(group => `<option value="${group.id}">${group.name} (${group.age_min}-${group.age_max} ans)</option>`).join('');
+            }
+            
+            if (childEducatorSelect) {
+                childEducatorSelect.innerHTML = '<option value="">Sélectionner un éducateur</option>' + 
+                    allEducators.map(educator => `<option value="${educator.id}">${educator.name}</option>`).join('');
+            }
+        }
+
         // === FONCTIONS ADMIN - PARENTS ===
 
         async function loadParentsAdmin() {
@@ -940,6 +1150,7 @@
                         <td style="padding: 12px;">${parent.phone || 'Non spécifié'}</td>
                         <td style="padding: 12px;">${Array.isArray(children) ? children.join(', ') : children}</td>
                         <td style="padding: 12px;">
+                            <button class="btn btn-secondary" onclick="editParent(${parent.id})" style="padding: 5px 10px; font-size: 12px;">Modifier</button>
                             <button class="btn btn-danger" onclick="deleteParent(${parent.id})" style="padding: 5px 10px; font-size: 12px;">Supprimer</button>
                         </td>
                     </tr>
@@ -970,13 +1181,432 @@
                 
                 if (result.success) {
                     showStatusMessage('Parent ajouté avec succès', 'success');
-                    document.getElementById('add-parent-form').style.display = 'none';
-                    document.getElementById('new-parent-name').value = '';
-                    document.getElementById('new-parent-email').value = '';
-                    document.getElementById('new-parent-phone').value = '';
+                    resetParentForm();
                     loadParentsAdmin();
                 } else {
                     showStatusMessage(result.error || 'Erreur lors de l\'ajout', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showStatusMessage('Erreur de connexion', 'error');
+            }
+        }
+
+        async function editParent(parentId) {
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/admin/parents/${parentId}`);
+                const result = await response.json();
+                
+                if (!result.success) {
+                    showStatusMessage('Erreur de chargement des données', 'error');
+                    return;
+                }
+                
+                const parent = result.parent;
+                editingParentId = parentId;
+                
+                document.getElementById('parent-form-title').textContent = 'Modifier Parent';
+                document.getElementById('new-parent-name').value = parent.name;
+                document.getElementById('new-parent-email').value = parent.email;
+                document.getElementById('new-parent-phone').value = parent.phone || '';
+                
+                const saveBtn = document.getElementById('save-parent-btn');
+                saveBtn.textContent = 'Modifier';
+                saveBtn.onclick = updateParent;
+                
+                document.getElementById('add-parent-form').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showStatusMessage('Erreur de connexion', 'error');
+            }
+        }
+
+        async function updateParent() {
+            const name = document.getElementById('new-parent-name').value.trim();
+            const email = document.getElementById('new-parent-email').value.trim();
+            const phone = document.getElementById('new-parent-phone').value.trim();
+            
+            if (!name || !email) {
+                showStatusMessage('Nom et email sont requis', 'error');
+                return;
+            }
+            
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/admin/parents/${editingParentId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ name, email, phone })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatusMessage('Parent modifié avec succès', 'success');
+                    resetParentForm();
+                    loadParentsAdmin();
+                } else {
+                    showStatusMessage(result.error || 'Erreur lors de la modification', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showStatusMessage('Erreur de connexion', 'error');
+            }
+        }
+
+        function resetParentForm() {
+            document.getElementById('add-parent-form').style.display = 'none';
+            document.getElementById('parent-form-title').textContent = 'Ajouter Nouveau Parent';
+            document.getElementById('new-parent-name').value = '';
+            document.getElementById('new-parent-email').value = '';
+            document.getElementById('new-parent-phone').value = '';
+            
+            const saveBtn = document.getElementById('save-parent-btn');
+            saveBtn.textContent = 'Ajouter';
+            saveBtn.onclick = addParent;
+            
+            editingParentId = null;
+        }
+
+        // === FONCTIONS ADMIN - ENFANTS ===
+
+        async function loadChildrenAdmin() {
+            if (!authToken) {
+                showStatusMessage('Vous devez être connecté', 'error');
+                return;
+            }
+
+            const loadingElement = document.getElementById('children-loading');
+            if (loadingElement) {
+                loadingElement.style.display = 'block';
+            }
+            
+            try {
+                const children = await loadAllChildren();
+                displayChildrenTable(children);
+            } catch (error) {
+                console.error('Erreur:', error);
+                showStatusMessage('Erreur de connexion', 'error');
+            }
+        }
+
+        function displayChildrenTable(children) {
+            const container = document.getElementById('children-table-container');
+            
+            let tableHTML = `
+                <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                    <thead>
+                        <tr style="background: #2c3e50; color: white;">
+                            <th style="padding: 12px; text-align: left;">Nom</th>
+                            <th style="padding: 12px; text-align: left;">Âge</th>
+                            <th style="padding: 12px; text-align: left;">Groupe</th>
+                            <th style="padding: 12px; text-align: left;">Éducateur</th>
+                            <th style="padding: 12px; text-align: left;">Parents</th>
+                            <th style="padding: 12px; text-align: left;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            children.forEach(child => {
+                tableHTML += `
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 12px;">${child.name}</td>
+                        <td style="padding: 12px;">${child.age} ans</td>
+                        <td style="padding: 12px;">${child.group_name || 'Non assigné'}</td>
+                        <td style="padding: 12px;">${child.educator_name || 'Non assigné'}</td>
+                        <td style="padding: 12px;">${child.parent_names || 'Aucun parent associé'}</td>
+                        <td style="padding: 12px;">
+                            <button class="btn btn-secondary" onclick="editChild(${child.id})" style="padding: 5px 10px; font-size: 12px;">Modifier</button>
+                            <button class="btn btn-info" onclick="manageChildParents(${child.id})" style="padding: 5px 10px; font-size: 12px;">Parents</button>
+                            <button class="btn btn-danger" onclick="deleteChild(${child.id})" style="padding: 5px 10px; font-size: 12px;">Supprimer</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += '</tbody></table>';
+            container.innerHTML = tableHTML;
+        }
+
+        async function addChild() {
+            const name = document.getElementById('new-child-name').value.trim();
+            const age = parseInt(document.getElementById('new-child-age').value);
+            const birthdate = document.getElementById('new-child-birthdate').value;
+            const groupId = document.getElementById('new-child-group').value;
+            const educatorId = document.getElementById('new-child-educator').value;
+            const medicalNotes = document.getElementById('new-child-medical-notes').value.trim();
+            
+            if (!name || !age) {
+                showStatusMessage('Nom et âge sont requis', 'error');
+                return;
+            }
+            
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/admin/children`, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        name, 
+                        age, 
+                        birthdate, 
+                        group_id: groupId || null, 
+                        educator_id: educatorId || null,
+                        medical_notes: medicalNotes
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatusMessage('Enfant ajouté avec succès', 'success');
+                    resetChildForm();
+                    loadChildrenAdmin();
+                } else {
+                    showStatusMessage(result.error || 'Erreur lors de l\'ajout', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showStatusMessage('Erreur de connexion', 'error');
+            }
+        }
+
+        async function editChild(childId) {
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/admin/children/${childId}`);
+                const result = await response.json();
+                
+                if (!result.success) {
+                    showStatusMessage('Erreur de chargement des données', 'error');
+                    return;
+                }
+                
+                const child = result.child;
+                editingChildId = childId;
+                
+                await populateSelectOptions();
+                
+                document.getElementById('child-form-title').textContent = 'Modifier Enfant';
+                document.getElementById('new-child-name').value = child.name;
+                document.getElementById('new-child-age').value = child.age;
+                document.getElementById('new-child-birthdate').value = child.birthdate || '';
+                document.getElementById('new-child-group').value = child.group_id || '';
+                document.getElementById('new-child-educator').value = child.educator_id || '';
+                document.getElementById('new-child-medical-notes').value = child.medical_notes || '';
+                
+                const saveBtn = document.getElementById('save-child-btn');
+                saveBtn.textContent = 'Modifier';
+                saveBtn.onclick = updateChild;
+                
+                document.getElementById('add-child-form').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showStatusMessage('Erreur de connexion', 'error');
+            }
+        }
+
+        async function updateChild() {
+            const name = document.getElementById('new-child-name').value.trim();
+            const age = parseInt(document.getElementById('new-child-age').value);
+            const birthdate = document.getElementById('new-child-birthdate').value;
+            const groupId = document.getElementById('new-child-group').value;
+            const educatorId = document.getElementById('new-child-educator').value;
+            const medicalNotes = document.getElementById('new-child-medical-notes').value.trim();
+            
+            if (!name || !age) {
+                showStatusMessage('Nom et âge sont requis', 'error');
+                return;
+            }
+            
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/admin/children/${editingChildId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ 
+                        name, 
+                        age, 
+                        birthdate, 
+                        group_id: groupId || null, 
+                        educator_id: educatorId || null,
+                        medical_notes: medicalNotes
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatusMessage('Enfant modifié avec succès', 'success');
+                    resetChildForm();
+                    loadChildrenAdmin();
+                } else {
+                    showStatusMessage(result.error || 'Erreur lors de la modification', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showStatusMessage('Erreur de connexion', 'error');
+            }
+        }
+
+        function resetChildForm() {
+            document.getElementById('add-child-form').style.display = 'none';
+            document.getElementById('child-form-title').textContent = 'Ajouter Nouvel Enfant';
+            document.getElementById('new-child-name').value = '';
+            document.getElementById('new-child-age').value = '';
+            document.getElementById('new-child-birthdate').value = '';
+            document.getElementById('new-child-group').value = '';
+            document.getElementById('new-child-educator').value = '';
+            document.getElementById('new-child-medical-notes').value = '';
+            
+            const saveBtn = document.getElementById('save-child-btn');
+            saveBtn.textContent = 'Ajouter';
+            saveBtn.onclick = addChild;
+            
+            editingChildId = null;
+        }
+
+        async function manageChildParents(childId) {
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/admin/children/${childId}/parents`);
+                const result = await response.json();
+                
+                if (!result.success) {
+                    showStatusMessage('Erreur de chargement', 'error');
+                    return;
+                }
+                
+                const child = result.child;
+                const parents = result.parents || [];
+                const allParents = result.all_parents || [];
+                
+                const modalContent = `
+                    <div style="background: white; padding: 30px; border-radius: 15px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+                        <h3>Gestion des Parents - ${child.name}</h3>
+                        
+                        <h4>Parents Actuels:</h4>
+                        <div id="current-parents">
+                            ${parents.map(parent => `
+                                <div class="child-association">
+                                    <div class="child-info">
+                                        <strong>${parent.parent_name}</strong><br>
+                                        <small>Relation: ${parent.relationship} | Garde: <span class="relationship-badge custody-${parent.custody_type}">${parent.custody_type}</span></small>
+                                    </div>
+                                    <button class="btn btn-danger" onclick="removeParentChild(${childId}, ${parent.parent_id})" style="padding: 3px 6px; font-size: 11px;">Retirer</button>
+                                </div>
+                            `).join('')}
+                            ${parents.length === 0 ? '<p>Aucun parent associé</p>' : ''}
+                        </div>
+                        
+                        <h4 style="margin-top: 20px;">Ajouter un Parent:</h4>
+                        <div style="max-height: 200px; overflow-y: auto;">
+                            ${allParents.filter(p => !parents.some(cp => cp.parent_id === p.id)).map(parent => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee;">
+                                    <div>
+                                        <strong>${parent.name}</strong><br>
+                                        <small>${parent.email}</small>
+                                    </div>
+                                    <button class="btn btn-success" onclick="showAddParentModal(${childId}, ${parent.id}, '${parent.name}')" style="padding: 5px 10px; font-size: 12px;">Associer</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 20px;">
+                            <button class="btn btn-secondary" onclick="closeModal('child-parents-modal')">Fermer</button>
+                        </div>
+                    </div>
+                `;
+                
+                createModal('child-parents-modal', modalContent);
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showStatusMessage('Erreur de connexion', 'error');
+            }
+        }
+
+        async function showAddParentModal(childId, parentId, parentName) {
+            const modalContent = `
+                <div style="background: white; padding: 30px; border-radius: 15px; max-width: 400px; width: 90%;">
+                    <h3>Associer ${parentName}</h3>
+                    <div class="form-group">
+                        <label>Type de relation:</label>
+                        <select id="relationship-type">
+                            <option value="parent">Parent</option>
+                            <option value="tuteur">Tuteur légal</option>
+                            <option value="gardien">Gardien</option>
+                            <option value="grand-parent">Grand-parent</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Type de garde:</label>
+                        <select id="custody-type">
+                            <option value="shared">Partagée</option>
+                            <option value="primary">Principale</option>
+                            <option value="secondary">Secondaire</option>
+                            <option value="weekend">Week-end uniquement</option>
+                        </select>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="can-authorize" checked>
+                        <label for="can-authorize">Peut donner des autorisations</label>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn btn-success" onclick="associateChildParent(${childId}, ${parentId})">Associer</button>
+                        <button class="btn btn-secondary" onclick="closeModal('add-parent-child-modal')">Annuler</button>
+                    </div>
+                </div>
+            `;
+            
+            createModal('add-parent-child-modal', modalContent);
+        }
+
+        async function associateChildParent(childId, parentId) {
+            try {
+                const relationship = document.getElementById('relationship-type').value;
+                const custodyType = document.getElementById('custody-type').value;
+                const canAuthorize = document.getElementById('can-authorize').checked;
+                
+                const response = await authenticatedFetch(`${API_BASE}/admin/parent-children`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        parent_id: parentId,
+                        child_id: childId,
+                        relationship: relationship,
+                        custody_type: custodyType,
+                        can_authorize: canAuthorize
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatusMessage('Association créée avec succès', 'success');
+                    closeModal('add-parent-child-modal');
+                    closeModal('child-parents-modal');
+                    loadChildrenAdmin();
+                } else {
+                    showStatusMessage(result.error || 'Erreur lors de l\'association', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showStatusMessage('Erreur de connexion', 'error');
+            }
+        }
+
+        async function removeParentChild(childId, parentId) {
+            if (!confirm('Êtes-vous sûr de vouloir retirer cette association parent-enfant ?')) {
+                return;
+            }
+            
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/admin/parent-children/${parentId}/${childId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatusMessage('Association supprimée', 'success');
+                    manageChildParents(childId); // Recharger le modal
+                } else {
+                    showStatusMessage(result.error || 'Erreur lors de la suppression', 'error');
                 }
             } catch (error) {
                 console.error('Erreur:', error);
@@ -998,14 +1628,8 @@
             }
             
             try {
-                const response = await authenticatedFetch(`${API_BASE}/admin/educators`);
-                const result = await response.json();
-                
-                if (result.success) {
-                    displayEducatorsTable(result.educators);
-                } else {
-                    showStatusMessage('Erreur de chargement des éducateurs', 'error');
-                }
+                const educators = await loadAllEducators();
+                displayEducatorsTable(educators);
             } catch (error) {
                 console.error('Erreur:', error);
                 showStatusMessage('Erreur de connexion', 'error');
@@ -1037,6 +1661,7 @@
                         <td style="padding: 12px;">${educator.phone || 'Non spécifié'}</td>
                         <td style="padding: 12px;">${educator.specialization || 'Non spécifié'}</td>
                         <td style="padding: 12px;">
+                            <button class="btn btn-secondary" onclick="editEducator(${educator.id})" style="padding: 5px 10px; font-size: 12px;">Modifier</button>
                             <button class="btn btn-danger" onclick="deleteEducator(${educator.id})" style="padding: 5px 10px; font-size: 12px;">Supprimer</button>
                         </td>
                     </tr>
@@ -1068,11 +1693,7 @@
                 
                 if (result.success) {
                     showStatusMessage('Éducateur ajouté avec succès', 'success');
-                    document.getElementById('add-educator-form').style.display = 'none';
-                    document.getElementById('new-educator-name').value = '';
-                    document.getElementById('new-educator-email').value = '';
-                    document.getElementById('new-educator-phone').value = '';
-                    document.getElementById('new-educator-specialization').value = '';
+                    resetEducatorForm();
                     loadEducatorsAdmin();
                 } else {
                     showStatusMessage(result.error || 'Erreur lors de l\'ajout', 'error');
@@ -1081,6 +1702,84 @@
                 console.error('Erreur:', error);
                 showStatusMessage('Erreur de connexion', 'error');
             }
+        }
+
+        async function editEducator(educatorId) {
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/admin/educators/${educatorId}`);
+                const result = await response.json();
+                
+                if (!result.success) {
+                    showStatusMessage('Erreur de chargement des données', 'error');
+                    return;
+                }
+                
+                const educator = result.educator;
+                editingEducatorId = educatorId;
+                
+                document.getElementById('educator-form-title').textContent = 'Modifier Éducateur';
+                document.getElementById('new-educator-name').value = educator.name;
+                document.getElementById('new-educator-email').value = educator.email || '';
+                document.getElementById('new-educator-phone').value = educator.phone || '';
+                document.getElementById('new-educator-specialization').value = educator.specialization || '';
+                
+                const saveBtn = document.getElementById('save-educator-btn');
+                saveBtn.textContent = 'Modifier';
+                saveBtn.onclick = updateEducator;
+                
+                document.getElementById('add-educator-form').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showStatusMessage('Erreur de connexion', 'error');
+            }
+        }
+
+        async function updateEducator() {
+            const name = document.getElementById('new-educator-name').value.trim();
+            const email = document.getElementById('new-educator-email').value.trim();
+            const phone = document.getElementById('new-educator-phone').value.trim();
+            const specialization = document.getElementById('new-educator-specialization').value.trim();
+            
+            if (!name) {
+                showStatusMessage('Le nom est requis', 'error');
+                return;
+            }
+            
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/admin/educators/${editingEducatorId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ name, email, phone, specialization })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatusMessage('Éducateur modifié avec succès', 'success');
+                    resetEducatorForm();
+                    loadEducatorsAdmin();
+                } else {
+                    showStatusMessage(result.error || 'Erreur lors de la modification', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showStatusMessage('Erreur de connexion', 'error');
+            }
+        }
+
+        function resetEducatorForm() {
+            document.getElementById('add-educator-form').style.display = 'none';
+            document.getElementById('educator-form-title').textContent = 'Ajouter Nouvel Éducateur';
+            document.getElementById('new-educator-name').value = '';
+            document.getElementById('new-educator-email').value = '';
+            document.getElementById('new-educator-phone').value = '';
+            document.getElementById('new-educator-specialization').value = '';
+            
+            const saveBtn = document.getElementById('save-educator-btn');
+            saveBtn.textContent = 'Ajouter';
+            saveBtn.onclick = addEducator;
+            
+            editingEducatorId = null;
         }
 
         // === FONCTIONS ADMIN - GROUPES ===
@@ -1097,14 +1796,8 @@
             }
             
             try {
-                const response = await authenticatedFetch(`${API_BASE}/admin/groups`);
-                const result = await response.json();
-                
-                if (result.success) {
-                    displayGroupsTable(result.groups);
-                } else {
-                    showStatusMessage('Erreur de chargement des groupes', 'error');
-                }
+                const groups = await loadAllGroups();
+                displayGroupsTable(groups);
             } catch (error) {
                 console.error('Erreur:', error);
                 showStatusMessage('Erreur de connexion', 'error');
@@ -1141,6 +1834,7 @@
                             </div>
                         </td>
                         <td style="padding: 12px;">
+                            <button class="btn btn-secondary" onclick="editGroup(${group.id})" style="padding: 5px 10px; font-size: 12px;">Modifier</button>
                             <button class="btn btn-danger" onclick="deleteGroup(${group.id})" style="padding: 5px 10px; font-size: 12px;">Supprimer</button>
                         </td>
                     </tr>
@@ -1178,12 +1872,7 @@
                 
                 if (result.success) {
                     showStatusMessage('Groupe ajouté avec succès', 'success');
-                    document.getElementById('add-group-form').style.display = 'none';
-                    document.getElementById('new-group-name').value = '';
-                    document.getElementById('new-group-age-min').value = '';
-                    document.getElementById('new-group-age-max').value = '';
-                    document.getElementById('new-group-description').value = '';
-                    document.getElementById('new-group-color').value = '#3498db';
+                    resetGroupForm();
                     loadGroupsAdmin();
                 } else {
                     showStatusMessage(result.error || 'Erreur lors de l\'ajout', 'error');
@@ -1194,10 +1883,96 @@
             }
         }
 
+        async function editGroup(groupId) {
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/admin/groups/${groupId}`);
+                const result = await response.json();
+                
+                if (!result.success) {
+                    showStatusMessage('Erreur de chargement des données', 'error');
+                    return;
+                }
+                
+                const group = result.group;
+                editingGroupId = groupId;
+                
+                document.getElementById('group-form-title').textContent = 'Modifier Groupe';
+                document.getElementById('new-group-name').value = group.name;
+                document.getElementById('new-group-age-min').value = group.age_min;
+                document.getElementById('new-group-age-max').value = group.age_max;
+                document.getElementById('new-group-description').value = group.description || '';
+                document.getElementById('new-group-color').value = group.color;
+                
+                const saveBtn = document.getElementById('save-group-btn');
+                saveBtn.textContent = 'Modifier';
+                saveBtn.onclick = updateGroup;
+                
+                document.getElementById('add-group-form').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showStatusMessage('Erreur de connexion', 'error');
+            }
+        }
+
+        async function updateGroup() {
+            const name = document.getElementById('new-group-name').value.trim();
+            const age_min = parseInt(document.getElementById('new-group-age-min').value);
+            const age_max = parseInt(document.getElementById('new-group-age-max').value);
+            const description = document.getElementById('new-group-description').value.trim();
+            const color = document.getElementById('new-group-color').value;
+            
+            if (!name || !age_min || !age_max) {
+                showStatusMessage('Nom et âges sont requis', 'error');
+                return;
+            }
+            
+            if (age_min >= age_max) {
+                showStatusMessage('L\'âge minimum doit être inférieur à l\'âge maximum', 'error');
+                return;
+            }
+            
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/admin/groups/${editingGroupId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ name, age_min, age_max, description, color })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatusMessage('Groupe modifié avec succès', 'success');
+                    resetGroupForm();
+                    loadGroupsAdmin();
+                } else {
+                    showStatusMessage(result.error || 'Erreur lors de la modification', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showStatusMessage('Erreur de connexion', 'error');
+            }
+        }
+
+        function resetGroupForm() {
+            document.getElementById('add-group-form').style.display = 'none';
+            document.getElementById('group-form-title').textContent = 'Ajouter Nouveau Groupe';
+            document.getElementById('new-group-name').value = '';
+            document.getElementById('new-group-age-min').value = '';
+            document.getElementById('new-group-age-max').value = '';
+            document.getElementById('new-group-description').value = '';
+            document.getElementById('new-group-color').value = '#3498db';
+            
+            const saveBtn = document.getElementById('save-group-btn');
+            saveBtn.textContent = 'Ajouter';
+            saveBtn.onclick = addGroup;
+            
+            editingGroupId = null;
+        }
+
         // === FONCTIONS DE SUPPRESSION ===
 
         async function deleteParent(parentId) {
-            if (!confirm('Êtes-vous sûr de vouloir supprimer ce parent ?')) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce parent ? Toutes les associations avec les enfants seront également supprimées.')) {
                 return;
             }
             
@@ -1211,6 +1986,30 @@
                 if (result.success) {
                     showStatusMessage('Parent supprimé avec succès', 'success');
                     loadParentsAdmin();
+                } else {
+                    showStatusMessage(result.error || 'Erreur lors de la suppression', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showStatusMessage('Erreur de connexion', 'error');
+            }
+        }
+
+        async function deleteChild(childId) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cet enfant ? Toutes les associations avec les parents seront également supprimées.')) {
+                return;
+            }
+            
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/admin/children/${childId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatusMessage('Enfant supprimé avec succès', 'success');
+                    loadChildrenAdmin();
                 } else {
                     showStatusMessage(result.error || 'Erreur lors de la suppression', 'error');
                 }
@@ -1279,6 +2078,10 @@
             // Chargement des onglets admin
             document.querySelector('[data-tab="admin-dashboard"]')?.addEventListener('click', loadDashboard);
             document.querySelector('[data-tab="admin-parents"]')?.addEventListener('click', loadParentsAdmin);
+            document.querySelector('[data-tab="admin-children"]')?.addEventListener('click', () => {
+                loadChildrenAdmin();
+                populateSelectOptions();
+            });
             document.querySelector('[data-tab="admin-educators"]')?.addEventListener('click', loadEducatorsAdmin);
             document.querySelector('[data-tab="admin-groups"]')?.addEventListener('click', loadGroupsAdmin);
 
@@ -1335,30 +2138,33 @@
             document.getElementById('show-add-parent-btn')?.addEventListener('click', () => {
                 document.getElementById('add-parent-form').style.display = 'block';
             });
-            document.getElementById('cancel-add-parent-btn')?.addEventListener('click', () => {
-                document.getElementById('add-parent-form').style.display = 'none';
-            });
-            document.getElementById('add-parent-btn')?.addEventListener('click', addParent);
+            document.getElementById('cancel-add-parent-btn')?.addEventListener('click', resetParentForm);
+            document.getElementById('save-parent-btn')?.addEventListener('click', addParent);
             document.getElementById('refresh-parents-btn')?.addEventListener('click', loadParentsAdmin);
+
+            // Gestion Enfants
+            document.getElementById('show-add-child-btn')?.addEventListener('click', () => {
+                populateSelectOptions();
+                document.getElementById('add-child-form').style.display = 'block';
+            });
+            document.getElementById('cancel-add-child-btn')?.addEventListener('click', resetChildForm);
+            document.getElementById('save-child-btn')?.addEventListener('click', addChild);
+            document.getElementById('refresh-children-btn')?.addEventListener('click', loadChildrenAdmin);
 
             // Gestion Éducateurs
             document.getElementById('show-add-educator-btn')?.addEventListener('click', () => {
                 document.getElementById('add-educator-form').style.display = 'block';
             });
-            document.getElementById('cancel-add-educator-btn')?.addEventListener('click', () => {
-                document.getElementById('add-educator-form').style.display = 'none';
-            });
-            document.getElementById('add-educator-btn')?.addEventListener('click', addEducator);
+            document.getElementById('cancel-add-educator-btn')?.addEventListener('click', resetEducatorForm);
+            document.getElementById('save-educator-btn')?.addEventListener('click', addEducator);
             document.getElementById('refresh-educators-btn')?.addEventListener('click', loadEducatorsAdmin);
 
             // Gestion Groupes
             document.getElementById('show-add-group-btn')?.addEventListener('click', () => {
                 document.getElementById('add-group-form').style.display = 'block';
             });
-            document.getElementById('cancel-add-group-btn')?.addEventListener('click', () => {
-                document.getElementById('add-group-form').style.display = 'none';
-            });
-            document.getElementById('add-group-btn')?.addEventListener('click', addGroup);
+            document.getElementById('cancel-add-group-btn')?.addEventListener('click', resetGroupForm);
+            document.getElementById('save-group-btn')?.addEventListener('click', addGroup);
             document.getElementById('refresh-groups-btn')?.addEventListener('click', loadGroupsAdmin);
         });
 
@@ -1369,3 +2175,5 @@
     </script>
 </body>
 </html>
+                
+                
